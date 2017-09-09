@@ -1,32 +1,40 @@
-datafolder="/Users/david/Dropbox (Personal)/Learning/HopkinsDataScience/AirPollutionAssignment/specdata"
-
-PPG <- read.csv(file=sprintf("%s/PPG.csv", datafolder), sep = ";")
-
-pollutantmean <- function(directory, pollutant, id = 1:332) {
-
-        # directory is a char vector of length 1 indicating the location of the 
-        # CSV files
-        
-        # 'pollutant' is a char vec of L 1 indicating name of pollutant for 
-        # which we will calculate the mean; either "sulfate" or "nitrate"
-        
-        # 'id' is an integer vector indicating the monitor ID numbers to be used
-        
-        # Return the mean of the pollutant across all monitors list in the 'id'
-        # vector (ignoring NA values). Do not round the result!
+pollutantmean <- function(directory, pollutant, id) {
 
         # prototype to remove NA: y <- x[!is.na(x)]
+        files <- list.files(path=directory, pattern = "*.csv", full.names = T)
+        files <- files[id]
+        allMeans <- NULL
+        allMons <- data.frame()
         
-        for()
-        PPG <- read.csv(file=sprintf("%s/PPG.csv", datafolder), sep = ";")
-        
-        files <- list.files(path = datafolder, pattern = "*.csv", full.names = T, recursive = FALSE)
-        lapply(files, function(x) {
-                t <- read.table(x, header=T) # load file
-                # apply function
+        for (i in seq_along(files)) {
+                filename = files[[i]]
+                # cat(filename)
+                # read data in
+                df <- read.csv(filename)
+                allMons <- rbind(allMons, df)
                 
-        })
+                # try to get sulfate
+                if (pollutant == "sulfate") {
+                        allMeans <- mean(allMons[,"sulfate"][!is.na(allMons[,"sulfate"])])
+                        
+                }
+                if (pollutant == "nitrate") {
+                        allMeans <- mean(allMons[,"nitrate"][!is.na(allMons[,"nitrate"])])
+                }
+        }
+        return(allMeans)
 }
-        
 
+complete <- function(directory, id) {
+        files <- list.files(path=directory, pattern = "*.*", full.names = T)
+        files <- files[id]
+        completes <- data.frame(id = NULL, nobs = NULL)
         
+        for (i in seq_along(files)) {
+                filename = files[[i]]
+                df <- read.csv(filename)
+                result <- data.frame(id = filename, nobs = sum(complete.cases(df)))
+                completes <- rbind(completes, result)
+        }
+        return(completes)
+}    
